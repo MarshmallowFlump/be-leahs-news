@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
-    "seed": "node ./db/seeds/run-seed.js",
-    "test": "jest"
+    "seed": "node ./seeds/run-seed.js",
+    "test": "psql -f ./db/setup.sql && jest",
+    "view-db": "psql -f view-db.sql > view-db.txt"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,11 @@
     "url": "https://github.com/northcoders/be-nc-news/issues"
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "dotenv": "^14.2.0",
+    "jest": "^27.4.7",
+    "pg": "^8.7.1",
+    "pg-format": "^1.0.4",
+    "supertest": "^6.2.1"
+  }
 }
