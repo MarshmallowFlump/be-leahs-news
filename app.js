@@ -1,10 +1,26 @@
 const express = require('express');
+
+const { 
+    getTopics, 
+    getArticleID,
+    patchArticleID,
+    getArticle,
+    getArticleComments,
+    postArticleComments,
+    deleteComment,
+    getAPI
+} = require('./controllers/controller');
+
 const app = express();
-
-const { getTopics } = require('./controllers/get-topics.controller')
-
 app.use(express.json());
 
 app.get('/api/topics', getTopics)
+app.get('/api/articles/:article_id', getArticleID)
+app.patch('/api/articles/:article_id', patchArticleID)
+app.get('/api/articles', getArticle)
+app.get('/api/articles/:article_id/comments', getArticleComments)
+app.post('/api/articles/:article_id/comments', postArticleComments)
+app.delete('/api/comments/:comment_id', deleteComment)
+app.get('/api', getAPI)
 
 module.exports = app;

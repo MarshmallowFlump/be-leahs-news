@@ -40,3 +40,92 @@ describe.only('GET /api/topics', () => {
     }) 
 })
 
+describe('GET /api/topics - Error Handling', () => {
+    test('', () => {
+        
+    })
+})
+
+describe('GET /api/articles/:article_id', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api/articles/:article_id - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('PATCH /api/articles/:article_id', () => {
+    test('', () => {
+
+    });
+});
+
+describe('PATCH /api/articles/:article_id - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api/articles', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api/articles - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api/articles/:article_id/comments', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api/articles/:article_id/comments - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+    test('', () => {
+
+    });
+});
+
+describe('POST /api/articles/:article_id/comments - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('DELETE /api/comments/:comment_id', () => {
+    test('', () => {
+
+    });
+});
+
+describe('DELETE /api/comments/:comment_id - Error Handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api', () => {
+    test('', () => {
+
+    });
+});
+
+describe('GET /api - Error Handling', () => {
+    test('', () => {
+
+    });
+});
