@@ -11,8 +11,7 @@ const { fetchTopics,
 exports.getTopics = (req, res) => {
     fetchTopics()
     .then((topics) => {
-       // console.log(topics)
-        res.status(200).send(topics);
+        res.status(200).send({topics});
     });
 }
 
@@ -41,5 +40,5 @@ exports.deleteComment = (req, res) => {
 }
 
 exports.getAPI = (req, res) => {
-    
+
 }
