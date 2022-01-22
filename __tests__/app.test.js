@@ -63,7 +63,7 @@ describe('GET /api/topics - Error Handling', () => {
     });
 });
 
-describe.only('GET /api/articles/:article_id', () => {
+describe('GET /api/articles/:article_id', () => {
     test('when given existing article_id responds with status code 200', () => {
         return request(app)
         .get('/api/articles/1')
@@ -117,9 +117,34 @@ describe('GET /api/articles/:article_id - Error Handling', () => {
     });
 });
 
-describe('PATCH /api/articles/:article_id', () => {
-    test('', () => {
-
+describe.only('PATCH /api/articles/:article_id', () => {
+    test('responds with status 200', () => {
+        return request(app)
+        .patch("/api/articles/1")
+        .send({
+            inc_votes: 1
+        })
+        .expect(200)
+    });
+    test('responds with status 200 and the article object containing the article with the votes field incremented by the amount input via the patch request', () => {
+        return request(app)
+        .patch("/api/articles/1")
+        .send({
+            inc_votes: 1
+        })
+        .expect(200)
+        .then((res) => {
+            expect(res.body.article).toEqual({
+                article_id: 1,
+                title: 'Living in the shadow of a great man',
+                body: 'I find this existence challenging',
+                votes: 101, 
+                topic: 'mitch',
+                author: 'butter_bridge', 
+                created_at: expect.any(String),
+                comment_count: '11'
+            });
+        });
     });
 });
 

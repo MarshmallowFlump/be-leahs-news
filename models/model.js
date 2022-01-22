@@ -27,8 +27,24 @@ exports.fetchArticleID = (article_id) => {
     });
 };  
 
-exports.patchedArticleID = () => {
-
+exports.patchedArticleID = (vote_increment, article_id) => {
+    return exports.fetchArticleID(article_id)
+    .then(({article}) => {
+        let voteCount = article.votes;
+        let voteIncrement = Number(vote_increment);
+        let updatedVoteCount= voteCount + voteIncrement;
+    return db
+    .query(
+        `UPDATE articles
+        SET votes = $1
+        WHERE article_id = $2
+        RETURNING *;`,
+        [updatedVoteCount, article_id]
+    )
+    .then(() => {
+    return exports.fetchArticleID(article_id);
+        });
+    });
 };
 
 exports.fetchArticle = () => {
