@@ -1,7 +1,7 @@
 const { fetchTopics,
         fetchArticleID,
         patchedArticleID,
-        fetchArticle,
+        fetchArticles,
         fetchArticleComments,
         postedArticleComments,
         deletedComment,
@@ -33,8 +33,13 @@ exports.patchArticleID = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticle = (req, res) => {
-
+exports.getArticles = (req, res, next) => {
+    fetchArticles()
+    .then((result) => {
+        //console.log(result)
+        res.status(200).send(result);
+    })
+    .catch(next)
 };
 
 exports.getArticleComments = (req, res) => {

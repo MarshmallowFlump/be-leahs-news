@@ -117,7 +117,7 @@ describe('GET /api/articles/:article_id - Error Handling', () => {
     });
 });
 
-describe.only('PATCH /api/articles/:article_id', () => {
+describe('PATCH /api/articles/:article_id', () => {
     test('responds with status 200', () => {
         return request(app)
         .patch("/api/articles/1")
@@ -154,11 +154,57 @@ describe('PATCH /api/articles/:article_id - Error Handling', () => {
     });
 });
 
-describe('GET /api/articles', () => {
-    test('', () => {
-
+describe.only('GET /api/articles', () => {
+    test('responds with status 200', () => {
+        return request(app)
+        .get(`/api/articles`)
+        .expect(200)
     });
 });
+    test('responds with status 200 and object containing the key of articles', () => {
+        return request(app)
+        .get(`/api/articles`)
+        .expect(200)
+        .then((res) => {
+           const results = res.body;
+           expect(results).toBeInstanceOf(Object);
+           expect(Object.keys(results)).toEqual(["articles"])
+    });
+});
+    test('responds with status 200 & an object containing an array of article objects, each containing the relevant key-value pairs', () => {
+        return request(app)
+        .get(`/api/articles`)
+        .expect(200)
+        .then((res) => {
+            const results = res.body.articles;
+            console.log(results);
+                    results.forEach((result) => {
+                        expect(result).toEqual(
+                            expect.objectContaining({
+                                author: expect.any(String),
+                                title: expect.any(String),
+                                article_id: expect.any(Number),
+                                topic: expect.any(String),
+                                created_at: expect.any(String),
+                                votes: expect.any(Number),
+                                comment_count: expect.any(String)
+                })
+            );
+    });
+    test('200: articles are sorted by date column by default', () => {
+
+    });
+    test('200: articles are sorted by descending order by default', () => {
+
+    });
+    test('200: articles can be sorted by a passed sort_by query to sort by any valid column - asc or desc, desc by default', () => {
+
+    });
+    test('200: articles can be filtered by the topic value specified in the query')
+    });
+});
+
+
 
 describe('GET /api/articles - Error Handling', () => {
     test('', () => {

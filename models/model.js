@@ -11,7 +11,8 @@ exports.fetchTopics = () => {
 };
 
 exports.fetchArticleID = (article_id) => {
-    return db.query(
+    return db
+    .query(
         `SELECT articles.*, 
         COUNT(comments.article_id)
         AS comment_count
@@ -47,8 +48,42 @@ exports.patchedArticleID = (vote_increment, article_id) => {
     });
 };
 
-exports.fetchArticle = () => {
-
+exports.fetchArticles = (sort_by, order, topic) => {
+    return db
+    .query(
+        `SELECT 
+                articles.author,
+                articles.title,
+                articles.article_id,
+                articles.topic,
+                articles.created_at,
+                articles.votes,
+            COUNT (comment_id)
+            AS comment_count
+            FROM articles
+            LEFT JOIN
+            comments
+            ON comments.article_id = articles.article_id
+            GROUP BY articles.article_id;`
+            
+        /* `SELECT articles.*, 
+        COUNT(comment_id)
+        AS comment_count
+        FROM articles 
+        LEFT JOIN
+        comments
+        ON comments.article_id = articles.article_id
+        GROUP BY articles.article_id;` */
+    )
+    .then((result) => {
+        const articlesArray = {articles: result.rows}
+        //const articlesArray = articles.map(eachArticle => {
+         //   const obj = { article: eachArticle};
+          //  return obj;
+        //})
+        //console.log(articlesArray)
+        return articlesArray;
+    });
 };
 
 exports.fetchArticleComments = () => {
