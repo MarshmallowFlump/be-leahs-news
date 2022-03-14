@@ -48,41 +48,62 @@ exports.patchedArticleID = (vote_increment, article_id) => {
     });
 };
 
-exports.fetchArticles = (sort_by, order, topic) => {
-    return db
-    .query(
-        `SELECT 
-                articles.author,
-                articles.title,
-                articles.article_id,
-                articles.topic,
-                articles.created_at,
-                articles.votes,
-            COUNT (comment_id)
+exports.fetchArticles = (
+    sort_by = 'created_at', 
+    order = 'desc', 
+    ) => {
+
+        const allowedSortBys = [
+            'author',
+            'title',
+            'topic',
+            'created_at',
+            'votes',
+            'comment_count',
+            'author'
+        ];
+
+        const allowedOrder = [
+            'asc', 
+            'desc',
+        ];
+
+        if (
+            !allowedSortBys
+            .includes(sort_by.toLowerCase())
+        ) {
+            return Promise.reject( { status: 400, msg: 'Bad request: Invalid sort query' });
+        }
+
+        if (
+            !allowedOrder
+            .includes(order.toLowerCase())
+            ) {
+                return Promise.reject({ status: 400, msg: 'Bad request: Invalid order query' });
+            }
+        
+    let queryString = `
+            SELECT 
+                articles.*,
+            COUNT (comments.comment_id)
             AS comment_count
             FROM articles
             LEFT JOIN
             comments
             ON comments.article_id = articles.article_id
-            GROUP BY articles.article_id;`
-            
-        /* `SELECT articles.*, 
-        COUNT(comment_id)
-        AS comment_count
-        FROM articles 
-        LEFT JOIN
-        comments
-        ON comments.article_id = articles.article_id
-        GROUP BY articles.article_id;` */
-    )
-    .then((result) => {
+            `;
+
+    queryString += `
+                 GROUP BY articles.article_id
+                 ORDER BY ${sort_by} ${order};
+                `;
+
+    
+    return db
+    .query(queryString)
+        .then((result) => {
         const articlesArray = {articles: result.rows}
-        //const articlesArray = articles.map(eachArticle => {
-         //   const obj = { article: eachArticle};
-          //  return obj;
-        //})
-        //console.log(articlesArray)
-        return articlesArray;
+        return result.rows;
     });
 };
 
@@ -101,5 +122,3 @@ exports.deletedComment = () => {
 exports.fetchAPI = () => {
 
 };
-
-
