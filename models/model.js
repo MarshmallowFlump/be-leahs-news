@@ -51,6 +51,7 @@ exports.patchedArticleID = (vote_increment, article_id) => {
 exports.fetchArticles = (
     sort_by = 'created_at', 
     order = 'desc', 
+    topic
     ) => {
 
         const allowedSortBys = [
@@ -67,6 +68,10 @@ exports.fetchArticles = (
             'asc', 
             'desc',
         ];
+
+        const allowedTopics = [
+
+        ]
 
         if (
             !allowedSortBys
@@ -92,18 +97,27 @@ exports.fetchArticles = (
             comments
             ON comments.article_id = articles.article_id
             `;
-
-    queryString += `
-                 GROUP BY articles.article_id
-                 ORDER BY ${sort_by} ${order};
+        
+        if (topic) {
+            queryString += `
+                 WHERE topic='${topic}'
+                GROUP BY articles.article_id
+                ORDER BY ${sort_by.toLowerCase()} ${order.toLowerCase()};
                 `;
-
+        } else {
+            queryString += `
+                 GROUP BY articles.article_id
+                ORDER BY ${sort_by.toLowerCase()} ${order.toLowerCase()};
+                `;
+            };
     
-    return db
-    .query(queryString)
-        .then((result) => {
-        const articlesArray = {articles: result.rows}
-        return result.rows;
+            return db
+                .query(queryString)
+                .then((result) => {
+        
+                    const articlesArray = {articles: result.rows}
+
+                return result.rows;
     });
 };
 
