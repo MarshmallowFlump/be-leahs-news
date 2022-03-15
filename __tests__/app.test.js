@@ -243,6 +243,22 @@ describe('GET /api/articles', () => {
             expect(results).toBeSortedBy('comment_count', {coerce: true, descending: false})
         });      
     });
+
+    test('200: articles can be filtered by a topic query', () => {
+        return request(app)
+        .get(`/api/articles?topic=mitch`)
+        .expect(200)
+        .then((res) => {
+            const results = res.body.articles;
+            results.forEach((result) => {
+                expect(result).toEqual(
+                    expect.objectContaining({
+                        'topic': 'mitch'
+                    })
+                )
+            })
+        })
+    })
     
 describe('GET /api/articles - Error Handling', () => {
     test('', () => {
