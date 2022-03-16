@@ -4,6 +4,7 @@ const seed = require('../seeds/seed');
 const request = require('supertest');
 const app = require('../app');
 const articles = require('../db/data/test-data/articles.js');
+const { string } = require('pg-format');
 
 
 beforeEach(() => seed(testData));
@@ -259,16 +260,33 @@ describe('GET /api/articles', () => {
             })
         })
     })
-    
-describe('GET /api/articles - Error Handling', () => {
+
+describe('GET /api/articles error handling', () => {
     test('', () => {
 
     });
-});
+});    
 
 describe('GET /api/articles/:article_id/comments', () => {
-    test('', () => {
-
+    test('200: responds with an array of comments for given article id which should have the below properties', () => {
+        return request(app)
+        .get(`/api/articles/1/comments`)
+        .expect(200)
+        .then((res) => {
+            const results = res.body.comments;
+            results.forEach((result) => {
+                expect(result).toEqual(
+                    expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: 1
+                    })
+                );
+            });
+        });
     });
 });
 
