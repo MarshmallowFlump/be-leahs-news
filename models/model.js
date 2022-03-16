@@ -121,8 +121,15 @@ exports.fetchArticles = (
     });
 };
 
-exports.fetchArticleComments = () => {
-
+exports.fetchArticleComments = (article_ID) => {
+    return db.query(
+        `SELECT * 
+        FROM comments
+        WHERE article_id=${article_ID};`
+        )
+    .then(( { rows }) => {
+    return rows;
+   });
 };
 
 exports.postedArticleComments = () => {
