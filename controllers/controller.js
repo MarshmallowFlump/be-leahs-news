@@ -42,8 +42,12 @@ exports.getArticles = (req, res, next) => {
     .catch(next)
 };
 
-exports.getArticleComments = (req, res) => {
-
+exports.getArticleComments = (req, res, next) => {
+    fetchArticleComments(req.params.article_id)
+    .then((allComments) => {
+        res.status(200).send({ comments: allComments });  
+    })
+    .catch(next)
 };
 
 exports.postArticleComments = (req, res) => {
