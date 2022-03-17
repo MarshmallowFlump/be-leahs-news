@@ -7,7 +7,7 @@ const {
     patchArticleID,
     getArticles,
     getArticleComments,
-    postArticleComments,
+    postArticleComment,
     deleteComment,
     getAPI
 } = require('./controllers/controller');
@@ -27,7 +27,7 @@ app.get('/api/articles/:article_id', getArticleID)
 app.patch('/api/articles/:article_id', patchArticleID)
 app.get('/api/articles', getArticles)
 app.get('/api/articles/:article_id/comments', getArticleComments)
-app.post('/api/articles/:article_id/comments', postArticleComments)
+app.post('/api/articles/:article_id/comments', postArticleComment)
 app.delete('/api/comments/:comment_id', deleteComment)
 app.get('/api', getAPI)
 
