@@ -291,8 +291,28 @@ describe('GET /api/articles/:article_id/comments', () => {
 });
 
 describe('GET /api/articles/:article_id/comments - Error Handling', () => {
-    test('', () => {
-
+    test('201: accepts a username and comment body and returns the whole comment object', () => {
+        const newComment = {
+            username: 'butter_bridge',
+            body: 'I am a five star man!'
+        };
+        return request(app)
+        .post(`/api/articles/1/comments`)
+        .send(newComment)
+        .expect(201)
+        .then((res) => {
+            const comment = res.body;
+            expect(comment).toBeInstanceOf(Object);
+            expect(comment.comment).toBeInstanceOf(Array);
+            expect(comment.comment[0]).toMatchObject({
+                comment_id: expect.any(Number),
+                author: 'butter_bridge',
+                article_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                body: 'I am a five star man!'
+            });
+        });
     });
 });
 
