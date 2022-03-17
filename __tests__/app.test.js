@@ -290,8 +290,14 @@ describe('GET /api/articles/:article_id/comments', () => {
     });
 });
 
-describe('GET /api/articles/:article_id/comments - Error Handling', () => {
-    test('201: accepts a username and comment body and returns the whole comment object', () => {
+describe('GET /api/articles/:article_id/comments error handling', () => {
+    test('', () => {
+
+    });
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+    test('201: accepts a username and comment body and returns the whole comment object as a newly posted comment', () => {
         const newComment = {
             username: 'butter_bridge',
             body: 'I am a five star man!'
@@ -316,21 +322,27 @@ describe('GET /api/articles/:article_id/comments - Error Handling', () => {
     });
 });
 
-describe('POST /api/articles/:article_id/comments', () => {
-    test('', () => {
-
-    });
-});
 
 describe('POST /api/articles/:article_id/comments - Error Handling', () => {
     test('', () => {
-
+       
     });
 });
 
 describe('DELETE /api/comments/:comment_id', () => {
-    test('', () => {
-
+    test('takes a comment of a given id and deletes that comment, returning status: 204 and no other content', () => {
+        return request(app)
+        .post(`/api/articles/1/comments`)
+        .send({
+            username: 'butter_bridge',
+            body: 'I like cheese'
+        })
+        .expect(201)
+        .then(() => {
+            return request(app)
+            .delete(`/api/comments/19`)
+            .expect(204)
+        });
     });
 });
 
