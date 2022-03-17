@@ -3,7 +3,7 @@ const { fetchTopics,
         patchedArticleID,
         fetchArticles,
         fetchArticleComments,
-        postedArticleComments,
+        addArticleComment,
         deletedComment,
         fetchAPI
 } = require('../models/model')
@@ -50,8 +50,14 @@ exports.getArticleComments = (req, res, next) => {
     .catch(next)
 };
 
-exports.postArticleComments = (req, res) => {
-
+exports.postArticleComment = (req, res, next) => {
+    const newComment = { username: req.body.username, body: req.body.body};
+    const article_id = Number(req.params.article_id);
+    addArticleComment(newComment, article_id)
+    .then((postedComment) => {
+        res.status(201).send({ comment: postedComment });
+    })
+    .catch(next)
 };
 
 exports.deleteComment = (req, res) => {
