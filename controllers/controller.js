@@ -4,8 +4,8 @@ const { fetchTopics,
         fetchArticles,
         fetchArticleComments,
         addArticleComment,
-        deletedComment,
-        fetchAPI
+        fetchAPI,
+        eraseComment
 } = require('../models/model')
 
 exports.getTopics = (req, res, next) => {
@@ -39,7 +39,7 @@ exports.getArticles = (req, res, next) => {
     .then((allArticles) => {
         res.status(200).send({ articles: allArticles });
     })
-    .catch(next)
+    .catch(next);
 };
 
 exports.getArticleComments = (req, res, next) => {
@@ -47,7 +47,7 @@ exports.getArticleComments = (req, res, next) => {
     .then((allComments) => {
         res.status(200).send({ comments: allComments });  
     })
-    .catch(next)
+    .catch(next);
 };
 
 exports.postArticleComment = (req, res, next) => {
@@ -57,11 +57,16 @@ exports.postArticleComment = (req, res, next) => {
     .then((postedComment) => {
         res.status(201).send({ comment: postedComment });
     })
-    .catch(next)
+    .catch(next);
 };
 
-exports.deleteComment = (req, res) => {
-
+exports.deleteComment = (req, res, next) => {
+    const comment_ID = Number(req.params.comment_id);
+    eraseComment(comment_ID)
+    .then(() => {
+        res.sendStatus(204);
+    })
+    .catch(next);
 };
 
 exports.getAPI = (req, res) => {
