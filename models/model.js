@@ -5,7 +5,7 @@ exports.fetchTopics = () => {
          `SELECT * 
          FROM topics;`
          )
-     .then(( { rows }) => {
+     .then(( { rows } ) => {
      return rows;
     });
 };
@@ -122,18 +122,36 @@ exports.fetchArticles = (
 };
 
 exports.fetchArticleComments = (article_ID) => {
-    return db.query(
-        `SELECT * 
+    return db
+    .query(
+        `
+        SELECT * 
         FROM comments
-        WHERE article_id=${article_ID};`
+        WHERE article_id=${article_ID}
+        ;`
         )
     .then(( { rows }) => {
     return rows;
    });
 };
 
-exports.postedArticleComments = () => {
+exports.addArticleComment = (newComment, article_id) => {
+    const { username, body } = newComment;
 
+    return db
+    .query(
+        `
+        INSERT INTO comments
+        (author, body, article_id)
+        VALUES
+        ($1, $2, $3)
+        RETURNING *
+        ;`,
+        [username, body, article_id]
+    )
+    .then(( {rows} ) => {
+    return rows;
+    });
 };
 
 exports.deletedComment = () => {
