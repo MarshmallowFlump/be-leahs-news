@@ -63,7 +63,7 @@
     ]
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "accepts a request body to post a new comment on a specified article and returns the newly posted comment",
+    "description": "accepts a request body to post a new comment concerning a specified article and returns the newly posted comment from the database",
     "exampleRequest": { 
       "username": "jessjelly", 
       "body": "This is a comment"
@@ -86,7 +86,7 @@
   }
 },
   "PATCH /api/articles/:article_id": {
-    "description": "patches an existing article to increment or decrement the votes property by the specified amount, then serves the updated article",
+    "description": "patches an existing article by article id to increment or decrement the votes property by the specified amount, then serves the updated article",
     "exampleRequest": {"inc_votes": 1},
     "exampleResponse": {
       "article": {
