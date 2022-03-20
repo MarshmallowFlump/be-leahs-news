@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const fs = require("fs/promises");
 
 exports.fetchTopics = () => {
      return db.query(
@@ -168,5 +169,13 @@ exports.eraseComment = (comment_id) => {
 };
 
 exports.fetchAPI = () => {
-
+    return fs
+    .readFile("./endpoints.json", "utf8")
+    .then((data) => {
+        const endpoints = JSON.parse(data);
+        return endpoints;
+    })
+    .catch((err) => {
+        console.log("Error: file does not exist", err);
+    });
 };
