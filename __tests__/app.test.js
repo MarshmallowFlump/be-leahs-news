@@ -353,8 +353,14 @@ describe('DELETE /api/comments/:comment_id - Error Handling', () => {
 });
 
 describe('GET /api', () => {
-    test('', () => {
-
+    test('200: responds with the endpoints.json file which describing all available endpoints of the API', () => {
+        return request(app)
+        .get(`/api`)
+        .expect(200)
+        .then((res) => {
+            const allEndPoints = res.body.allEndPoints;
+            expect(allEndPoints).toBeInstanceOf(Object);
+        });
     });
 });
 
