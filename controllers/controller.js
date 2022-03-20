@@ -69,6 +69,10 @@ exports.deleteComment = (req, res, next) => {
     .catch(next);
 };
 
-exports.getAPI = (req, res) => {
-
+exports.getAPI = (req, res, next) => {
+    fetchAPI()
+    .then((allEndPoints) => {
+        res.status(200).send({ allEndPoints });
+    })
+    .catch(next);
 };
