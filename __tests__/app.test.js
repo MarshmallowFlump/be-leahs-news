@@ -11,46 +11,25 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe('GET /api/topics', () => {
-    test('responds with status 200', () => {
-        return request(app)
-        .get('/api/topics')
-        .expect(200)
-    });
-    test('responds with status 200 and an object', () => {
+    test('responds with status 200 and an object containing an array of objects with keys of description and slug associated with values of the correct format', () => {
         return request(app)
         .get('/api/topics')
         .expect(200)
         .then((res) => {
             expect(res.body).toBeInstanceOf(Object);
             expect(res.body).not.toBeInstanceOf(Array);
-         });
-    });
-    test('responds with a status 200 and an object containing an array', () => {
-        return request(app)
-        .get('/api/topics')
-        .expect(200)
-        .then((result) => {
-            const topics = result.body.topics
-            //console.log(topics)
+            const topics = res.body.topics;
             expect(topics).toBeInstanceOf(Array)
-        });
-    });
-    test('responds with a status 200 and an object containing an array of objects with keys of description and slug associated with values of the correct format', () => {
-        return request(app)
-        .get('/api/topics')
-        .expect(200)
-        .then((result) => {
-            const topics = result.body.topics
-            topics.forEach((topic) => {
+               topics.forEach((topic) => {
                 expect(topic).toEqual(
                     expect.objectContaining({
                         slug: expect.any(String),
                         description: expect.any(String)
                     })
                 )}
-            )}
-        );
-    });
+            );
+        });
+    });   
 });
 
 
@@ -66,12 +45,7 @@ describe('GET /api/topics - Error Handling', () => {
 });
 
 describe('GET /api/articles/:article_id', () => {
-    test('when given existing article_id responds with status code 200', () => {
-        return request(app)
-        .get('/api/articles/1')
-        .expect(200)
-    });
-    test('when given existing article_id responds with status code 200 and an object with key of article', () => {
+    test('when given existing article_id responds with status code 200 and an object with key of article containing author, title, article_id, body, topic, created_at, votes and comment_count properties with correct values', () => {
         const article_ID = 1;
         return request(app)
         .get(`/api/articles/${article_ID}`)
@@ -80,25 +54,7 @@ describe('GET /api/articles/:article_id', () => {
             expect(typeof body).toEqual('object')
             expect(body).not.toBeInstanceOf(Array);
             expect(Object.keys(body)).toEqual(['article'])
-        });
-    });
-    test('when given existing article_id responds with status code 200 and an object containing an object with the key article containing author, title, article_id, body, topic, created_at, votes and comment_count properties', () => {
-        const article_ID = 1;
-        return request(app)
-        .get(`/api/articles/${article_ID}`)
-        .expect(200)
-        .then(({body}) => {
-            expect(typeof body).toBe('object')
-            expect(body).not.toBeInstanceOf(Array)
             expect(Object.keys(body.article)).toEqual(['article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at', 'comment_count'])
-        });
-    });
-    test('when given existing article_id responds with all of the above and values of article object keys are correct', () => {
-        const article_ID = 1;
-        return request(app)
-        .get(`/api/articles/${article_ID}`)
-        .expect(200)
-        .then(({body}) => {
             expect(body.article).toEqual({
                 article_id: 1,
                 title: 'Living in the shadow of a great man',
@@ -108,11 +64,10 @@ describe('GET /api/articles/:article_id', () => {
                 author: 'butter_bridge', 
                 created_at: expect.any(String),
                 comment_count: '11'
-            });
         });
     });
 });
-
+ 
 describe('GET /api/articles/:article_id - Error Handling', () => {
     test('', () => {
 
@@ -120,17 +75,10 @@ describe('GET /api/articles/:article_id - Error Handling', () => {
 });
 
 describe('PATCH /api/articles/:article_id', () => {
-    test('responds with status 200', () => {
-        return request(app)
-        .patch("/api/articles/1")
-        .send({
-            inc_votes: 1
-        })
-        .expect(200)
-    });
     test('responds with status 200 and the article object containing the article with the votes field incremented by the amount input via the patch request', () => {
+        const article_ID = 1;
         return request(app)
-        .patch("/api/articles/1")
+        .patch(`/api/articles/${article_ID}`)
         .send({
             inc_votes: 1
         })
@@ -145,10 +93,9 @@ describe('PATCH /api/articles/:article_id', () => {
                 author: 'butter_bridge', 
                 created_at: expect.any(String),
                 comment_count: '11'
-            });
         });
     });
-});
+ });
 
 describe('PATCH /api/articles/:article_id - Error Handling', () => {
     test('', () => {
@@ -255,11 +202,11 @@ describe('GET /api/articles', () => {
                 expect(result).toEqual(
                     expect.objectContaining({
                         'topic': 'mitch'
-                    })
-                )
-            })
-        })
-    })
+                })
+            );
+        });
+    });
+});
 
 describe('GET /api/articles error handling', () => {
     test('', () => {
@@ -269,8 +216,9 @@ describe('GET /api/articles error handling', () => {
 
 describe('GET /api/articles/:article_id/comments', () => {
     test('200: responds with an array of comments for given article id which should have the below properties', () => {
+        const article_ID = 1;
         return request(app)
-        .get(`/api/articles/1/comments`)
+        .get(`/api/articles/${article_ID}/comments`)
         .expect(200)
         .then((res) => {
             const results = res.body.comments;
@@ -302,8 +250,9 @@ describe('POST /api/articles/:article_id/comments', () => {
             username: 'butter_bridge',
             body: 'I am a five star man!'
         };
+        const article_ID = 1;
         return request(app)
-        .post(`/api/articles/1/comments`)
+        .post(`/api/articles/${article_ID}/comments`)
         .send(newComment)
         .expect(201)
         .then((res) => {
@@ -331,8 +280,10 @@ describe('POST /api/articles/:article_id/comments - Error Handling', () => {
 
 describe('DELETE /api/comments/:comment_id', () => {
     test('takes a comment of a given id and deletes that comment, returning status: 204 and no other content', () => {
+        const article_ID = 1;
+        const comment_ID = 19;
         return request(app)
-        .post(`/api/articles/1/comments`)
+        .post(`/api/articles/${article_ID}/comments`)
         .send({
             username: 'butter_bridge',
             body: 'I like cheese'
@@ -340,7 +291,7 @@ describe('DELETE /api/comments/:comment_id', () => {
         .expect(201)
         .then(() => {
             return request(app)
-            .delete(`/api/comments/19`)
+            .delete(`/api/comments/${comment_ID}`)
             .expect(204)
         });
     });
@@ -367,5 +318,7 @@ describe('GET /api', () => {
 describe('GET /api - Error Handling', () => {
     test('', () => {
 
-    });
+            });
+        })
+    })
 });
