@@ -1,22 +1,14 @@
-/* console.log(devData.topicData)
-
-console.log(devData.topicData.map((topic) => [
-    topic.slug,
-    topic.description
-  ]), '<<mapped');
- */
+//This file includes functions for the purpose of formatting various data during the database seeding process
 
 exports.formatTopicData = (topicData) => {
     const formattedTopics = topicData.map((topic) => [topic.slug, topic.description]);
     return formattedTopics;
-}
+};
 
 exports.formatUserData = (userData) => {
     const formattedUsers = userData.map((user) => [user.username, user.avatar_url, user.name]);
     return formattedUsers;
-}
-
-
+};
 
 exports.formatArticleData = (articleData) => {
     const formattedArticles = articleData.map((article) => {
@@ -30,7 +22,7 @@ exports.formatArticleData = (articleData) => {
         ];
     });
     return formattedArticles;
-}
+};
 
 exports.formatCommentData = (commentData) => {
     const formattedComments = commentData.map((comment) => {
@@ -43,12 +35,12 @@ exports.formatCommentData = (commentData) => {
         ];
     });
     return formattedComments;
-}
+};
 
 exports.createUserReference = (userRows) => {
-    let ref = {}
+    let ref = {};
     userRows.forEach((userRow) => {
         ref.username = userRow.username;
     });
     return ref;
-}
+};
