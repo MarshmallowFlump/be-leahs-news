@@ -9,7 +9,8 @@ const { fetchTopics,
 } = require('../models/model');
 
 const { validateArticleExists,
-        validateUserExists
+        validateUserExists,
+        validateCommentExists
 } = require('../utils/utils');
 
 exports.getTopics = (req, res, next) => {
@@ -17,7 +18,9 @@ exports.getTopics = (req, res, next) => {
     .then((topics) => {
         res.status(200).send({topics});
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
 exports.getArticleByID = (req, res, next) => {
@@ -69,7 +72,9 @@ exports.getArticleComments = (req, res, next) => {
     .then((allComments) => {
         res.status(200).send({ comments: allComments });  
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
 exports.postArticleComment = (req, res, next) => {
@@ -105,12 +110,23 @@ exports.postArticleComment = (req, res, next) => {
 };
 
 exports.deleteComment = (req, res, next) => {
-    const comment_ID = Number(req.params.comment_id);
-    eraseComment(comment_ID)
-    .then(() => {
-        res.sendStatus(204);
+
+    const { comment_id } = req.params;
+
+    validateCommentExists(comment_id)
+    .then((commentExists) => {
+        if (!commentExists) {
+            return Promise.reject({ status: 404, msg: 'Invalid URL' });
+        } else {
+            eraseComment(comment_id)
+            .then(() => {
+            res.sendStatus(204);
+            });
+        };
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
 exports.getAPI = (req, res, next) => {
@@ -118,5 +134,7 @@ exports.getAPI = (req, res, next) => {
     .then((allEndPoints) => {
         res.status(200).send({ allEndPoints });
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
