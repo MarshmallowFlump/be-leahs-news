@@ -513,26 +513,31 @@ describe('POST /api/articles/:article_id/comments - Error Handling', () => {
 
 describe('DELETE /api/comments/:comment_id', () => {
     test('takes a comment of a given id and deletes that comment, returning status: 204 and no other content', () => {
-        const article_ID = 1;
-        const comment_ID = 19;
-        return request(app)
-        .post(`/api/articles/${article_ID}/comments`)
-        .send({
-            username: 'butter_bridge',
-            body: 'I like cheese'
-        })
-        .expect(201)
-        .then(() => {
+        const comment_ID = 2;
             return request(app)
             .delete(`/api/comments/${comment_ID}`)
             .expect(204)
-        });
     });
 });
 
 describe('DELETE /api/comments/:comment_id - Error Handling', () => {
-    test('', () => {
-
+    test('returns status 404 when given a non-existent comment ID', () => {
+       const non_existent_comment_ID = 0;
+       return request(app)
+       .delete(`/api/comments/${non_existent_comment_ID}`)
+       .expect(404)
+       .then(({ body }) => {
+           expect(body.msg).toBe('Invalid URL')
+       });
+    });
+    test('returns status 400 when given an invalid comment ID', () => {
+        const invalid_comment_ID = 'not-an-id';
+        return request(app)
+        .delete(`/api/comments/${invalid_comment_ID}`)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+        });
     });
 });
 
@@ -547,9 +552,3 @@ describe('GET /api', () => {
         });
     });
 });
-
-describe('GET /api - Error Handling', () => {
-    test('', () => {
-
-            });
-        });
