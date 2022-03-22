@@ -79,13 +79,13 @@ describe('GET /api/articles/:article_id - Error Handling', () => {
             expect(body.msg).toBe('Invalid input')
         });
     });
-    test('responds with status 404 - Article not found when passed a non-existant article_id', () => {
-        const non_existant_article_ID = 8880;
+    test('responds with status 404 - Article not found when passed a non-existent article_id', () => {
+        const non_existent_article_ID = 8880;
         return request(app)
-        .get(`/api/articles/${non_existant_article_ID}`)
+        .get(`/api/articles/${non_existent_article_ID}`)
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe(`Article with ID of '${non_existant_article_ID}' not found`);
+            expect(body.msg).toBe(`Article with ID of '${non_existent_article_ID}' not found`);
         });
     });
 });
@@ -167,15 +167,15 @@ describe('PATCH /api/articles/:article_id - Error Handling', () => {
     });    
 
     test('returns status 404 - ID not found when passed an article_id which does not exist', () => {
-        const non_existant_article_ID = 999009;
+        const non_existent_article_ID = 999009;
         return request(app)
-        .patch(`/api/articles/${non_existant_article_ID}`)
+        .patch(`/api/articles/${non_existent_article_ID}`)
         .send({
             inc_votes: 2
         })
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe(`Article with ID of '${non_existant_article_ID}' not found`);
+            expect(body.msg).toBe(`Article with ID of '${non_existent_article_ID}' not found`);
         });
     });
 });
@@ -269,10 +269,11 @@ describe('GET /api/articles', () => {
     });
 
     test('200: articles can be filtered by a topic query', () => {
+        const topic_query = 'mitch'
         return request(app)
-        .get(`/api/articles?topic=mitch`)
+        .get(`/api/articles?topic=${topic_query}`)
         .expect(200)
-        .then((res) => {
+        .then((res) => {            
             const results = res.body.articles;
             results.forEach((result) => {
                 expect(result).toEqual(
@@ -283,11 +284,47 @@ describe('GET /api/articles', () => {
             });
         });
     });
+    
+    test('200: responds with an empty array of articles when a valid topic query such as paper is supplied but where there are no articles to display', () => {
+        const valid_topic_query = 'paper';
+        return request(app)
+        .get(`/api/articles?topic=${valid_topic_query}`)
+        .expect(200)
+        .then((res) => {
+            const results = res.body.articles;
+            expect(results).toBeInstanceOf(Array);
+            expect(results.length).toBe(0);
+        })
+    })
 });
 
 describe('GET /api/articles error handling', () => {
-    test('', () => {
-
+    test('400: responds with invalid sort query when passed an invalid sort_by query', () => {
+        const invalid_sort_query = 'bananas';
+        return request(app)
+        .get(`/api/articles?sort_by=${invalid_sort_query}`)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Bad request: Invalid sort query')
+        })
+    });
+    test('400: responds with invalid order query when passed an invalid order query', () => {
+        const invalid_order_query = 'bananas';
+        return request(app)
+        .get(`/api/articles?order=${invalid_order_query}`)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Bad request: Invalid order query');
+        });
+    });
+    test('404: responds with does not exist when passed a non-existent topic query', () => {
+        const non_existent_topic_query = 'bananas';
+        return request(app)
+        .get(`/api/articles?topic=${non_existent_topic_query}`)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe(`Topic '${non_existent_topic_query}' not found`);
+        });
     });
 });    
 
