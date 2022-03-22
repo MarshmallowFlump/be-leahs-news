@@ -350,12 +350,41 @@ describe('GET /api/articles/:article_id/comments', () => {
             });
         });
     });
+    test('200: responds with an empty array when passed a valid id for an article which has no comments', () => {
+        const valid_article_id_with_no_comments = 11;
+        return request(app)
+        .get(`/api/articles/${valid_article_id_with_no_comments}/comments`)
+        .expect(200)
+        .then(({ body }) => {
+            console.log(body)
+            expect(body).toEqual(
+                expect.objectContaining({
+                    comments: []
+                })
+            );
+        });
+    });
 });
 
 describe('GET /api/articles/:article_id/comments error handling', () => {
-    test('', () => {
-
+    test('returns status 400 and invalid request when passed an invalid ID', () => {
+        const invalid_ID = 'not-an-id';
+        return request(app)
+        .get(`/api/articles/${invalid_ID}/comments`)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+        })
     });
+    test('returns status 404 and not found when passed a non-existent ID', () => {
+        const non_existent_article_ID = 9090990;
+        return request(app)
+        .get(`/api/artcles/${non_existent_article_ID}/comments`)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid URL')
+        })
+    })
 });
 
 describe('POST /api/articles/:article_id/comments', () => {
