@@ -5,6 +5,7 @@ const request = require('supertest');
 const app = require('../app');
 const articles = require('../db/data/test-data/articles.js');
 const { string } = require('pg-format');
+const comments = require('../db/data/test-data/comments.js');
 
 
 beforeEach(() => seed(testData));
@@ -356,7 +357,6 @@ describe('GET /api/articles/:article_id/comments', () => {
         .get(`/api/articles/${valid_article_id_with_no_comments}/comments`)
         .expect(200)
         .then(({ body }) => {
-            console.log(body)
             expect(body).toEqual(
                 expect.objectContaining({
                     comments: []
@@ -412,12 +412,102 @@ describe('POST /api/articles/:article_id/comments', () => {
             });
         });
     });
+    test('201: ignores unnecessary properties and still returns newly posted comment', () => {
+        const article_ID = 1;
+        const newComment = {
+            username: 'butter_bridge',
+            body: 'I am a 2018 Range Rover woman.',
+            unnecessary_property: 'This value should be ignored.'
+        };
+        return request(app)
+        .post(`/api/articles/${article_ID}/comments`)
+        .send(newComment)
+        .expect(201)
+        .then((res) => {
+            const comment = res.body;
+            expect(comment).toBeInstanceOf(Object);
+            expect(comment.comment).toBeInstanceOf(Array);
+            expect(comment.comment[0]).toMatchObject({
+                comment_id: expect.any(Number),
+                author: 'butter_bridge',
+                article_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                body: 'I am a 2018 Range Rover woman.'
+            });
+        });
+    });
 });
 
 
 describe('POST /api/articles/:article_id/comments - Error Handling', () => {
-    test('', () => {
-       
+    test('returns status 400 and invalid input when passed an invalid article ID', () => {
+       const invalid_article_ID = 'not-an-id';
+       const newComment = {
+        username: 'butter_bridge',
+        body: 'What is your spaghetti policy here?'
+        };
+       return request(app)
+       .post(`/api/articles/${invalid_article_ID}/comments`)
+       .send(newComment)
+       .expect(400)
+       .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+       });
+    });
+    test('returns status 404 and invalid URL when passed a  non-existent article ID', () => {
+        const non_existent_article_ID = 0;
+        const newComment = {
+            username: 'butter_bridge',
+            body: 'I did an ocular patdown and I cleared him.'
+        };
+        return request(app)
+        .post(`/api/articles/${non_existent_article_ID}/comments`)
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid URL')
+        });
+    });
+    test('returns status 400 - invalid input when sent a request that is missing required fields e.g. no username', () => {
+        const article_ID = 1;
+        const newComment = {
+            body: 'So anyway, I started blasting...'
+        };
+        return request(app)
+        .post(`/api/articles/${article_ID}/comments`)
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+        });
+    });
+    test('400 - invalid input when sent a request that is missing required fields e.g. no body', () => {
+        const article_ID = 1;
+        const newComment = {
+            username: 'butter_bridge'
+        };
+        return request(app)
+        .post(`/api/articles/${article_ID}/comments`)
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+        });
+    });
+    test('returns status 404 - invalid URL when sent a username that does not exist', () => {
+        const article_ID = 1;
+        const newComment = {
+            username: 'DennisReynolds',
+            body: 'These guys are more barnacle-covered and sunburnt than Dee and Frank.'
+        };
+        return request(app)
+        .post(`/api/articles/${article_ID}/comments`)
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid URL')
+        });
     });
 });
 
