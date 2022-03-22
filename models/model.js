@@ -71,77 +71,70 @@ exports.updateArticleVotesByID = (body, article_id) => {
 };
 
 exports.fetchArticles = (
-    sort_by = 'created_at', 
-    order = 'desc', 
+    sort_by = 'created_at',
+    order = 'desc',
     topic
-    ) => {
+) => {
 
-        const allowedSortBys = [
-            'author',
-            'title',
-            'topic',
-            'created_at',
-            'votes',
-            'comment_count',
-            'author'
-        ];
-
-        const allowedOrder = [
-            'asc', 
-            'desc',
-        ];
-
-        const allowedTopics = [
-
-        ]
-
-        if (
-            !allowedSortBys
-            .includes(sort_by.toLowerCase())
+    const allowedSortBys = [
+        'author',
+        'title',
+        'topic',
+        'created_at',
+        'votes',
+        'comment_count',
+        'author'
+    ];  
+    
+    if (!allowedSortBys
+        .includes(sort_by.toLowerCase())
         ) {
             return Promise.reject( { status: 400, msg: 'Bad request: Invalid sort query' });
-        }
+        };
 
-        if (
-            !allowedOrder
-            .includes(order.toLowerCase())
-            ) {
-                return Promise.reject({ status: 400, msg: 'Bad request: Invalid order query' });
-            }
-        
-    let queryString = `
-            SELECT 
-                articles.*,
-            COUNT (comments.comment_id)
-            AS comment_count
-            FROM articles
-            LEFT JOIN
-            comments
-            ON comments.article_id = articles.article_id
-            `;
-        
-        if (topic) {
-            queryString += `
-                 WHERE topic='${topic}'
-                GROUP BY articles.article_id
-                ORDER BY ${sort_by.toLowerCase()} ${order.toLowerCase()};
-                `;
-        } else {
-            queryString += `
-                 GROUP BY articles.article_id
-                ORDER BY ${sort_by.toLowerCase()} ${order.toLowerCase()};
-                `;
-            };
+    const allowedOrder = [
+        'asc',
+        'desc'
+    ];
+
+    if (!allowedOrder
+        .includes(order.toLowerCase())
+        ) {
+            return Promise.reject({ status: 400, msg: 'Bad request: Invalid order query' });
+        };
+
+    let queryString = `SELECT articles.*, COUNT (comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
     
-            return db
-                .query(queryString)
-                .then((result) => {
-        
-                    const articlesArray = {articles: result.rows}
+    const queryValue = [];
+  
+    if (topic) {
+        queryValue.push(topic);
+        queryString += `WHERE articles.topic = $1`;
+        };
 
-                return result.rows;
+    queryString += `
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order};`;
+
+    return db
+            .query(queryString, queryValue)
+            .then((result) => {
+                if (topic && result.rows.length === 0) {
+                    return db
+                        .query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+                        .then((validTopic) => {
+                            if (!validTopic.rows.length) {
+                                return Promise.reject({ status: 404, msg: `Topic '${topic}' not found`});
+                            };
+                            return result.rows;
+                });
+            };
+                    return result.rows;
     });
-};
+
+}; 
+                                    
 
 exports.fetchArticleComments = (article_ID) => {
     return db
