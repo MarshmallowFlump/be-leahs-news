@@ -67,10 +67,26 @@ describe('GET /api/articles/:article_id', () => {
         });
     });
 });
+});
  
 describe('GET /api/articles/:article_id - Error Handling', () => {
-    test('', () => {
-
+    test('responds with status 400 - Invalid input when passed an incorrect article_id type', () => {
+        const invalid_article_ID = 'not-an-ID';
+        return request(app)
+        .get(`/api/articles/${invalid_article_ID}`)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input')
+        });
+    });
+    test('responds with status 404 - Article not found when passed a non-existant article_id', () => {
+        const non_existant_article_ID = 8880;
+        return request(app)
+        .get(`/api/articles/${non_existant_article_ID}`)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe(`Article with ID of '${non_existant_article_ID}' not found`);
+        });
     });
 });
 
@@ -79,12 +95,13 @@ describe('PATCH /api/articles/:article_id', () => {
         const article_ID = 1;
         return request(app)
         .patch(`/api/articles/${article_ID}`)
-        .send({
+        .send({ 
             inc_votes: 1
         })
         .expect(200)
-        .then((res) => {
-            expect(res.body.article).toEqual({
+        .then(({ body }) => {
+            const article = body.article;
+            expect(article).toEqual({
                 article_id: 1,
                 title: 'Living in the shadow of a great man',
                 body: 'I find this existence challenging',
@@ -93,13 +110,73 @@ describe('PATCH /api/articles/:article_id', () => {
                 author: 'butter_bridge', 
                 created_at: expect.any(String),
                 comment_count: '11'
+            });
         });
     });
- });
+    test('responds with status 200 and the article object with no change to the votes value when not provided with inc_votes key', () => {
+        const article_ID = 1;
+        return request(app)
+        .patch(`/api/articles/${article_ID}`)
+        .send({})
+        .expect(200)
+        .then(({ body }) => {
+            const votes = body.article.votes;
+            expect(votes).toBe(100);
+        });
+    }); 
+    test('responds with status 200 and decrements the votes when passed a negative inc_votes value', () => {
+        const article_ID = 1;
+        return request(app)
+        .patch(`/api/articles/${article_ID}`)
+        .send({
+            inc_votes: -10
+        })
+        .expect(200)
+        .then(({ body }) => {
+            const votes = body.article.votes;
+            expect(votes).toBe(90);
+        });
+    });
+});
 
 describe('PATCH /api/articles/:article_id - Error Handling', () => {
-    test('', () => {
+    test('returns status 400 - Invalid input when an invalid article_id is passed in', () => {
+        const invalid_id = 'not-an-id';
+        return request(app)
+        .patch(`/api/articles/${invalid_id}`)
+        .send({
+            inc_votes: 1
+        })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input');
+        });
+    });
 
+    test('returns status 400 - Invalid input when passed an invalid inc_votes type - not a number', () => {
+        const invalid_inc_votes = 'not-a-number';
+        return request(app)
+        .patch(`/api/articles/1`)
+        .send({
+            inc_votes: invalid_inc_votes
+        })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe(`Invalid input`);
+        });
+    });    
+
+    test('returns status 404 - ID not found when passed an article_id which does not exist', () => {
+        const non_existant_article_ID = 999009;
+        return request(app)
+        .patch(`/api/articles/${non_existant_article_ID}`)
+        .send({
+            inc_votes: 2
+        })
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe(`Article with ID of '${non_existant_article_ID}' not found`);
+        });
     });
 });
 
@@ -128,8 +205,7 @@ describe('GET /api/articles', () => {
                 })
             })
         });
-    });
-   
+       
     test('200: articles are sorted by date descending by default', () => {
         return request(app)
         .get(`/api/articles`)
@@ -202,8 +278,9 @@ describe('GET /api/articles', () => {
                 expect(result).toEqual(
                     expect.objectContaining({
                         'topic': 'mitch'
-                })
-            );
+                    })
+                );
+            });
         });
     });
 });
@@ -319,6 +396,4 @@ describe('GET /api - Error Handling', () => {
     test('', () => {
 
             });
-        })
-    })
-});
+        });
