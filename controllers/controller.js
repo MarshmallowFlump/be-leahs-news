@@ -1,12 +1,12 @@
 const { fetchTopics,
-        fetchArticleID,
-        patchedArticleID,
+        fetchArticleByID,
+        updateArticleVotesByID,
         fetchArticles,
         fetchArticleComments,
         addArticleComment,
         fetchAPI,
         eraseComment
-} = require('../models/model')
+} = require('../models/model');
 
 exports.getTopics = (req, res, next) => {
     fetchTopics()
@@ -16,25 +16,41 @@ exports.getTopics = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticleID = (req, res, next) => {
-    const article_id = req.params.article_id;
-    fetchArticleID(article_id)
-    .then((article) => {
-        res.status(200).send(article);
+exports.getArticleByID = (req, res, next) => {
+
+    const { article_id } = req.params;
+
+    fetchArticleByID(article_id)
+    .then((requiredArticle) => {
+        if (requiredArticle.article === undefined) {
+            return Promise.reject({ status: 404, msg: `Article with ID of '${article_id}' not found` });
+        } else {
+            res.status(200).send(requiredArticle);
+        };
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
-exports.patchArticleID = (req, res, next) => {
-    patchedArticleID(req.params.article_id, 1)
+exports.patchArticleByID = (req, res, next) => {
+
+    const { article_id } = req.params;
+    const updatedArticleBody = req.body;
+
+    updateArticleVotesByID(updatedArticleBody, article_id)
     .then((updatedArticle) => {
         res.status(200).send(updatedArticle);
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
 exports.getArticles = (req, res, next) => {
+
     const { sort_by, order, topic} = req.query;
+    
     fetchArticles(sort_by, order, topic)
     .then((allArticles) => {
         res.status(200).send({ articles: allArticles });
