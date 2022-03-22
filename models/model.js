@@ -150,7 +150,8 @@ exports.fetchArticleComments = (article_ID) => {
    });
 };
 
-exports.addArticleComment = (newComment, article_id) => {
+exports.addArticleComment = (article_id, newComment) => {
+
     const { username, body } = newComment;
 
     return db
@@ -164,7 +165,7 @@ exports.addArticleComment = (newComment, article_id) => {
         ;`,
         [username, body, article_id]
     )
-    .then(( {rows} ) => {
+    .then(({ rows }) => {
     return rows;
     });
 };
