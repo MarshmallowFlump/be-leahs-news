@@ -8,6 +8,10 @@ const { fetchTopics,
         eraseComment
 } = require('../models/model');
 
+const { validateArticleExists,
+        validateUserExists
+} = require('../utils/utils');
+
 exports.getTopics = (req, res, next) => {
     fetchTopics()
     .then((topics) => {
@@ -69,13 +73,35 @@ exports.getArticleComments = (req, res, next) => {
 };
 
 exports.postArticleComment = (req, res, next) => {
-    const newComment = { username: req.body.username, body: req.body.body};
-    const article_id = Number(req.params.article_id);
-    addArticleComment(newComment, article_id)
-    .then((postedComment) => {
-        res.status(201).send({ comment: postedComment });
+    const { article_id } = req.params;
+    const { username, body } = req.body;
+    const newComment = req.body;
+
+    return validateArticleExists(article_id)
+    .then((articleExists) => {
+        if (articleExists) {
+            if (username === undefined || body === undefined) {
+                return Promise.reject({ status: 400, msg: 'Invalid input'})
+            } else {
+                return validateUserExists(username)
+                .then((userExists) => {
+                    if (userExists) {
+                        return addArticleComment(article_id, newComment)
+                        .then((postedComment) => {
+                            res.status(201).send({ comment: postedComment });
+                        });
+                    } else {
+                        return Promise.reject({ status: 404, msg: 'Invalid URL' });
+                    }
+                });
+            }
+        } else {
+            return Promise.reject({ status: 404, msg: 'Invalid URL' });
+        }
     })
-    .catch(next);
+    .catch((err) => {
+        next(err);
+    });
 };
 
 exports.deleteComment = (req, res, next) => {
