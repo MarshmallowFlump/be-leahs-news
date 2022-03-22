@@ -11,11 +11,11 @@ exports.fetchTopics = () => {
     });
 };
 
-exports.fetchArticleID = (article_id) => {
+exports.fetchArticleByID = (article_id) => {            
     return db
     .query(
         `SELECT articles.*, 
-        COUNT(comments.article_id)
+        COUNT(comment_id)
         AS comment_count
         FROM articles 
         LEFT JOIN
@@ -27,25 +27,46 @@ exports.fetchArticleID = (article_id) => {
     const returnObject = { article: result.rows[0]}
     return returnObject;
     });
-};  
+};
 
-exports.patchedArticleID = (vote_increment, article_id) => {
-    return exports.fetchArticleID(article_id)
-    .then(({article}) => {
-        let voteCount = article.votes;
-        let voteIncrement = Number(vote_increment);
-        let updatedVoteCount= voteCount + voteIncrement;
+exports.updateArticleVotesByID = (body, article_id) => {
+
+    let { inc_votes } = body;
+
+    if (inc_votes === undefined) {
+        inc_votes = 0;
+    }
+
     return db
     .query(
-        `UPDATE articles
-        SET votes = $1
-        WHERE article_id = $2
-        RETURNING *;`,
-        [updatedVoteCount, article_id]
-    )
-    .then(() => {
-    return exports.fetchArticleID(article_id);
-        });
+            `
+            UPDATE articles
+            SET votes = votes + $1
+            WHERE article_id = $2
+            RETURNING *
+            ;`, 
+            [inc_votes, article_id]
+            )
+            .then(({ rows }) => {
+                if (!rows.length) {
+                    return Promise.reject(( { status: 404, msg: `Article with ID of '${article_id}' not found`}))
+                } else {
+                    return db
+                        .query(
+                            `
+                            SELECT articles.*, 
+                            COUNT(comment_id)
+                            AS comment_count
+                            FROM articles 
+                            LEFT JOIN comments
+                            ON articles.article_id = comments.article_id
+                            WHERE articles.article_id= $1 GROUP BY articles.article_id;`, [article_id]
+                        )
+                        .then((result) => {
+                            const returnObject = {article: result.rows[0]};
+                            return returnObject;
+            });
+        };
     });
 };
 
