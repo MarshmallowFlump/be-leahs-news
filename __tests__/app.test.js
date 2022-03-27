@@ -3,10 +3,6 @@ const testData = require('../db/data/test-data/index.js');
 const seed = require('../seeds/seed');
 const request = require('supertest');
 const app = require('../app');
-const articles = require('../db/data/test-data/articles.js');
-const { string } = require('pg-format');
-const comments = require('../db/data/test-data/comments.js');
-
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
