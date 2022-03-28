@@ -18,6 +18,7 @@ describe('GET /api/topics', () => {
             const topics = res.body.topics;
             expect(topics).toBeInstanceOf(Array)
                topics.forEach((topic) => {
+                expect(topic.length).not.toBe(0);
                 expect(topic).toEqual(
                     expect.objectContaining({
                         slug: expect.any(String),
@@ -188,6 +189,7 @@ describe('GET /api/articles', () => {
            expect(Object.keys(results)).toEqual(["articles"]);
            const articles = res.body.articles;
                     articles.forEach((article) => {
+                        expect(article.length).not.toBe(0);
                         expect(article).toEqual(
                             expect.objectContaining({
                                 author: expect.any(String),
@@ -273,6 +275,7 @@ describe('GET /api/articles', () => {
         .then((res) => {            
             const results = res.body.articles;
             results.forEach((result) => {
+                expect(result.length).not.toBe(0);
                 expect(result).toEqual(
                     expect.objectContaining({
                         'topic': 'mitch'
@@ -334,6 +337,7 @@ describe('GET /api/articles/:article_id/comments', () => {
         .then((res) => {
             const results = res.body.comments;
             results.forEach((result) => {
+                expect(result.length).not.toBe(0);
                 expect(result).toEqual(
                     expect.objectContaining({
                         comment_id: expect.any(Number),
